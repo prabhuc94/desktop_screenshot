@@ -28,6 +28,9 @@ static void desktop_screenshot_plugin_handle_method_call(
 
   if (strcmp(method, "getPlatformVersion") == 0) {
     response = get_platform_version();
+  } else if (strcmp(method, "readImageFromClipboard") == 0) {
+      read_image_from_clipboard(method_call);
+      return;
   } else {
     response = FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
   }
@@ -41,6 +44,47 @@ FlMethodResponse* get_platform_version() {
   g_autofree gchar *version = g_strdup_printf("Linux %s", uname_data.version);
   g_autoptr(FlValue) result = fl_value_new_string(version);
   return FL_METHOD_RESPONSE(fl_method_success_response_new(result));
+}
+
+static void clipboard_request_image_callback(GtkClipboard* clipboard,
+                                             GdkPixbuf* pixbuf,
+                                             gpointer user_data) {
+    g_autoptr(FlMethodCall) method_call = static_cast<FlMethodCall*>(user_data);
+
+    if (!pixbuf) {
+        fl_method_call_respond_success(method_call, nullptr, nullptr);
+        return;
+    }
+
+    gchar* buffer = nullptr;
+    gsize buffer_size = 0;
+    GError* error = nullptr;
+
+    gdk_pixbuf_save_to_buffer(pixbuf, &buffer, &buffer_size, "png", &error,
+                              nullptr);
+    if (error) {
+        fl_method_call_respond_error(method_call, "0", error->message, nullptr,
+                                     nullptr);
+        return;
+    }
+
+    if (!buffer) {
+        fl_method_call_respond_error(method_call, "0", "failed to get image",
+                                     nullptr, nullptr);
+        return;
+    }
+
+    fl_method_call_respond_success(
+            method_call,
+            fl_value_new_uint8_list(reinterpret_cast<const uint8_t*>(buffer),
+                                    buffer_size),
+            nullptr);
+}
+
+static void read_image_from_clipboard(FlMethodCall* method_call) {
+    auto* clipboard = gtk_clipboard_get_default(gdk_display_get_default());
+    gtk_clipboard_request_image(clipboard, clipboard_request_image_callback,
+                                g_object_ref(method_call));
 }
 
 static void desktop_screenshot_plugin_dispose(GObject* object) {

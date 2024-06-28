@@ -41,8 +41,6 @@ public class DesktopScreenshotPlugin: NSObject, FlutterPlugin {
         if (!onlyOpenPrefPane) {
             if #available(macOS 10.16, *) {
                 CGRequestScreenCaptureAccess()
-            } else {
-                // Fallback on earlier versions
             }
         } else {
             let prefpaneUrl = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")!
