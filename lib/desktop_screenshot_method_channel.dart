@@ -16,7 +16,12 @@ class MethodChannelDesktopScreenshot extends DesktopScreenshotPlatform {
 
   @override
   Future<Uint8List?> getScreenshot() async {
-    final List<int> screenshot = await methodChannel.invokeMethod('getScreenshot');
-    return Uint8List.fromList(screenshot);
+    try {
+      var result = await methodChannel.invokeMethod<List<int>?>("getScreenshot");
+      final List<int> screenshot = result ?? [];
+      return Uint8List.fromList(screenshot);
+    } catch (e) {
+      return null;
+    }
   }
 }
