@@ -56,14 +56,15 @@ class _MyAppState extends State<MyApp> {
     Uint8List? screenShot;
     try {
       screenShot = await _desktopScreenshotPlugin.getScreenshot();
-    } on PlatformException {
+    } on PlatformException catch (e) {
+      // Print the exception details
+      print('Failed to capture screenshot: ${e.message}');
       screenShot = Uint8List(0);
     }
 
     if (kDebugMode) {
       print("ScreenShotSize ${screenShot?.lengthInBytes}");
     }
-
 
     if (!mounted) return;
 
