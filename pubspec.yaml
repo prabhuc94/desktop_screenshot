@@ -1,6 +1,6 @@
 name: desktop_screenshot
 description: "Capture screenshot using system default functionality"
-version: 0.0.3
+version: 0.0.4
 homepage: https://github.com/prabhuc94/desktop_screenshot
 
 environment:

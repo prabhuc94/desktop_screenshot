@@ -22,7 +22,7 @@ Add this to your package's pubspec.yaml file:
 
 ```yaml
 dependencies:
-  desktop_screenshot: ^0.0.2
+  desktop_screenshot: ^0.0.4
 ```
 #### Windows requirements
 
